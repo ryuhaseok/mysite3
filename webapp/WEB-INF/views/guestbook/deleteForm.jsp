@@ -82,6 +82,7 @@
 								<td><a href="">[메인으로 돌아가기]</a></td>
 							</tr>
 						</table>
+						<input type='hidden' name="no" value="<%=request.getAttribute("no")%>">
 						<input type='hidden' name="action" value="delete">
 					</form>
 					

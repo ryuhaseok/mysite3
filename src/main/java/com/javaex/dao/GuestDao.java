@@ -143,11 +143,13 @@ public class GuestDao {
 			// 3. SQL문 준비 / 바인딩 / 실행
 			// SQL문 준비
 			String query = " delete from guestbook "
-							+ "where password = ? ";
+							+ "where no = ? "
+							+ "and password = ? ";
 
 			// 바인딩
 			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, guestVo.getPw());
+			pstmt.setInt(1, guestVo.getNo());
+			pstmt.setString(2, guestVo.getPw());
 
 			// 실행
 			count = pstmt.executeUpdate();

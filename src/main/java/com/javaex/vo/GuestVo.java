@@ -12,7 +12,8 @@ public class GuestVo {
 	public GuestVo() {
 	}
 	
-	public GuestVo(String pw) {
+	public GuestVo(int no, String pw) {
+		this.no = no;
 		this.pw = pw;
 	}
 	

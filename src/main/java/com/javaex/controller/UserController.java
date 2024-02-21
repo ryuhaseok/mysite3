@@ -93,14 +93,24 @@ public class UserController extends HttpServlet {
 		} else if("deleteform".equals(action)) {
 			System.out.println("deleteform");
 			
+			int no = Integer.parseInt(request.getParameter("no"));
+			System.out.println(no);
+			
+			request.setAttribute("no", no);
+			
 			WebUtil.forward(request, response, "/WEB-INF/views/guestbook/deleteForm.jsp");
 			
 		} else if("delete".equals(action)) {
 			System.out.println("deleteform>delete");
 			
+			int no = Integer.parseInt(request.getParameter("no"));
 			String password = request.getParameter("pass");
 			
-			GuestVo guestVo = new GuestVo(password);
+			System.out.println(no);
+			
+			request.setAttribute("no", no);
+			
+			GuestVo guestVo = new GuestVo(no, password);
 			
 			GuestDao guestDao = new GuestDao();
 			guestDao.guestDelete(guestVo);

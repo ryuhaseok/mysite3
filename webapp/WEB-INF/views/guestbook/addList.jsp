@@ -114,10 +114,10 @@
 							<col style="width: 10%;">
 						</colgroup>
 						<tr>
-							<td>1234555</td>
+							<td><%=guestList.get(i).getNo() %></td>
 							<td><%=guestList.get(i).getName() %></td>
 							<td><%=guestList.get(i).getRegDate() %></td>
-							<td><a href="User?action=deleteform">[삭제]</a></td>
+							<td><a href="User?action=deleteform&no=<%=guestList.get(i).getNo() %>">[삭제]</a></td>
 						</tr>
 						<tr>
 							<td colspan=4 class="text-left"><%=guestList.get(i).getContent() %></td>

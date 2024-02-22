@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.javaex.dao.GuestDao;
 import com.javaex.dao.UserDao;
@@ -56,66 +57,92 @@ public class UserController extends HttpServlet {
 			//joinOk.jsp로 포워드
 			WebUtil.forward(request, response, "/WEB-INF/views/user/joinOk.jsp");
 			
-			
 		} else if("loginform".equals(action)) {
 			System.out.println("joinOk>loginform");
 			
 			WebUtil.forward(request, response, "/WEB-INF/views/user/loginForm.jsp");
 			
-		} else if("addList".equals(action)) {
-			System.out.println("guestbook:addList");
+		} else if("login".equals(action)) {
+			System.out.println("loginform>login");
 			
-			GuestDao guestDao = new GuestDao();
+			String id = request.getParameter("id");
+			String password = request.getParameter("pw");
 			
-			//리스트 가져오기
-			List<GuestVo> guestList = guestDao.guestSelect();
-			System.out.println(guestList);
+			UserVo userVo = new UserVo(id, password);
 			
-			//데이터 담기 포워드
-			request.setAttribute("guestList", guestList);
+			UserDao userDao = new UserDao();
+			UserVo authUser = userDao.selectUserByIdPw(userVo); //userVo는 id, pw값
+			//authUser는 no, name 값
 			
-			WebUtil.forward(request, response, "/WEB-INF/views/guestbook/addList.jsp");
-						
-		}else if("add".equals(action)) {
-			System.out.println("addList>add");
+			if(authUser != null) {//로그인 성공
+				HttpSession session = request.getSession();
+				session.setAttribute("authUser", authUser);
+				
+				WebUtil.redirect(request, response, "/mysite3/Main");
+				
+			} else {//로그인 실패
+				System.out.println("로그인 실패");
+				
+				WebUtil.redirect(request, response, "/mysite3/User?action=loginform");
+			}
 			
+		} else if("logout".equals(action)) {
+			System.out.println("user>logout");
+			
+			HttpSession session = request.getSession();
+			session.invalidate();
+			
+			WebUtil.redirect(request, response, "/mysite3/Main");
+			
+		} else if("modifyform".equals(action)) {
+			System.out.println("user>modifyform");
+			
+			HttpSession session = request.getSession();
+			UserVo authUser = (UserVo)session.getAttribute("authUser");
+			System.out.println(authUser.getNo());
+			// System.out.println(authUser.getId()); //null값- authUser는 no, name값만 가지고있기때문
+
+			//db에서 Id값 가져오기
+			UserDao userDao = new UserDao();
+			UserVo userId = userDao.selectUserById(authUser.getNo());
+			
+			session.setAttribute("userId", userId);
+			
+			WebUtil.forward(request, response, "/WEB-INF/views/user/modifyForm.jsp");
+			
+		} else if("modify".equals(action)) {
+			System.out.println("modifyform>modify");
+			
+			//세션 가져오기
+			HttpSession session = request.getSession();
+			UserVo authUser = (UserVo)session.getAttribute("authUser");
+			System.out.println(authUser.getNo());
+			
+			UserVo userId = (UserVo)session.getAttribute("userId");//이거 안써서 로그인 풀림
+			System.out.println(userId.getId());
+			
+			//인풋 파라미터 가져오기
+			String id = userId.getId(); //userId가 있어야 id값 가져오는데 id값을 못 가져와서
+			int no = authUser.getNo();
+			String password = request.getParameter("pw");
 			String name = request.getParameter("name");
-			String password = request.getParameter("pass");
-			String content = request.getParameter("content");
+			String gender = request.getParameter("gender");
 			
-			GuestVo guestVo = new GuestVo(name, password, content);
+			//vo에 담고
+			UserVo userVo = new UserVo(no, password, name, gender);
 			
-			GuestDao guestDao = new GuestDao();
-			guestDao.insertGuestbook(guestVo);
+			//dbㅇ연결
+			UserDao userDao = new UserDao();
+			//수정 메소드
+			userDao.update(userVo);
 			
-			WebUtil.redirect(request, response, "http://localhost:8080/mysite3/User?action=addList");
+			UserVo userVoByIdPw = new UserVo(id, password);//이게 null이었고
 			
-		} else if("deleteform".equals(action)) {
-			System.out.println("deleteform");
 			
-			int no = Integer.parseInt(request.getParameter("no"));
-			System.out.println(no);
+			authUser = userDao.selectUserByIdPw(userVoByIdPw);//그래서 여기서 authUser가 null값이었던 것으로 추측
+			session.setAttribute("authUser", authUser);
 			
-			request.setAttribute("no", no);
-			
-			WebUtil.forward(request, response, "/WEB-INF/views/guestbook/deleteForm.jsp");
-			
-		} else if("delete".equals(action)) {
-			System.out.println("deleteform>delete");
-			
-			int no = Integer.parseInt(request.getParameter("no"));
-			String password = request.getParameter("pass");
-			
-			System.out.println(no);
-			
-			request.setAttribute("no", no);
-			
-			GuestVo guestVo = new GuestVo(no, password);
-			
-			GuestDao guestDao = new GuestDao();
-			guestDao.guestDelete(guestVo);
-			
-			WebUtil.redirect(request, response, "http://localhost:8080/mysite3/User?action=addList");
+			WebUtil.redirect(request, response, "/mysite3/Main");
 			
 		} else {
 			System.out.println("action값을 다시 확인해주세요");

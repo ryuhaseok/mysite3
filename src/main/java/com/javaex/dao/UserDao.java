@@ -35,7 +35,7 @@ public class UserDao {
 			System.out.println("error:" + e);
 
 		}
-	}
+	}//
 	
 	// 종료
 	public void close() {
@@ -53,7 +53,7 @@ public class UserDao {
 		} catch (SQLException e) {
 			System.out.println("error:" + e);
 		}
-	}
+	}//
 
 	public int insertUser(UserVo userVo) {
 		
@@ -88,6 +88,120 @@ public class UserDao {
 		this.close();
 		
 		return count;
-	}
+	}//
+	
+	public UserVo selectUserByIdPw(UserVo userVo) {
+		
+		UserVo authUser = null;
+		
+		this.getConnection();
+		
+		try {
+			// 3. SQL문 준비 / 바인딩 / 실행
+			// SQL문 준비
+			String query = " select  no, "
+					+ "				name "
+					+ " from users "
+					+ " where id = ? "
+					+ " and password = ? ";
+
+			// 바인딩
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, userVo.getId());
+			pstmt.setString(2, userVo.getPw());
+
+			// 실행
+			rs = pstmt.executeQuery();
+
+			// 4.결과처리
+			while(rs.next()) {
+				int no = rs.getInt("no");
+				String name = rs.getString("name");
+				authUser = new UserVo(no, name);
+				authUser.setNo(no);
+				authUser.setName(name);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error:" + e);
+		}
+		
+		this.close();
+		
+		return authUser;
+	}//
+	
+	public UserVo selectUserById(int no) {
+		
+		UserVo userVo = null;
+		
+		this.getConnection();
+		
+		try {
+			// 3. SQL문 준비 / 바인딩 / 실행
+			// SQL문 준비
+			String query = " select  id "
+					+ "from users "
+					+ "where no = ? ";
+
+			// 바인딩
+			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, no);
+
+			// 실행
+			rs = pstmt.executeQuery();
+
+			// 4.결과처리
+			while(rs.next()) {
+				String id = rs.getString("id");
+				userVo = new UserVo(id);
+				userVo.setId(id);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error:" + e);
+		}
+		
+		this.close();
+		
+		return userVo;
+	}//
+	
+	public int update(UserVo userVo) {
+		
+		int count = -1;
+		
+		this.getConnection();
+		
+		try {
+			// 3. SQL문 준비 / 바인딩 / 실행
+			// SQL문 준비
+			String query = " update users "
+					+ "set password = ?, "
+					+ "name = ?, "
+					+ "gender = ? "
+					+ "where no = ? ";
+
+			// 바인딩
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, userVo.getPw());
+			pstmt.setString(2, userVo.getName());
+			pstmt.setString(3, userVo.getGender());
+			pstmt.setInt(4, userVo.getNo());
+
+			// 실행
+			count = pstmt.executeUpdate();
+
+			// 4.결과처리
+			System.out.println(count + "건 수정되었습니다.");
+
+		} catch (SQLException e) {
+			System.out.println("error:" + e);
+		}
+		
+		this.close();
+		
+		return count;
+	}//
 	
 }

@@ -59,7 +59,7 @@
 							<!-- 아이디 -->
 							<div class="form-group">
 								<label class="form-text" for="input-uid">아이디</label> 
-								<span class="text-large bold"><%=userId.getId() %></span>
+								<span class="text-large bold">${sessionScope.userId.id }</span>
 							</div>
 	
 							<!-- 비밀번호 -->
